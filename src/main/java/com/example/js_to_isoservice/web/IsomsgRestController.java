@@ -1,5 +1,6 @@
 package com.example.js_to_isoservice.web;
 
+import com.example.js_to_isoservice.entities.ISOMSGRequest;
 import com.example.js_to_isoservice.entities.Isomsg;
 import com.example.js_to_isoservice.entities.Transaction_Hist;
 import com.example.js_to_isoservice.iso.ClientISORequestListener;
@@ -14,6 +15,7 @@ import org.jpos.iso.MUX;
 import org.jpos.q2.iso.QMUX;
 import org.jpos.util.NameRegistrar;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -92,24 +94,55 @@ public class IsomsgRestController {
     public String echo() throws ISOException, NameRegistrar.NotFoundException {
         mux = QMUX.getMUX("clientsimulator-mux");
         //create an ISOMsg
-        byte b[] = { 00, ((byte) 0xfb) };
+        byte b[] = {00, ((byte) 0xfb)};
 
 
-            ISOMsg isoMsg = new ISOMsg();
-            isoMsg.setMTI("0200");
-            isoMsg.set(2, "0000000");
-            isoMsg.set(3, "000000");
-            isoMsg.set(4, "100000");
-            isoMsg.set(7, new SimpleDateFormat("MMddHHmmss").format(new Date()));
-            isoMsg.set(11, "123");
-            isoMsg.set(12, new SimpleDateFormat("HHmmss").format(new Date()));
-            ISOMsg respMsg = mux.request(isoMsg, 100);
-            if (respMsg == null) {
-                return "No response received from server.";
-            } else {
-                System.out.println(Arrays.toString(respMsg.pack()));
-                return respMsg.toString();
-            }
+        ISOMsg isoMsg = new ISOMsg();
+        isoMsg.setMTI("0200");
+        isoMsg.set(2, "0000000");
+        isoMsg.set(3, "000000");
+        isoMsg.set(4, "100000");
+        isoMsg.set(7, new SimpleDateFormat("MMddHHmmss").format(new Date()));
+        isoMsg.set(11, "123");
+        isoMsg.set(12, new SimpleDateFormat("HHmmss").format(new Date()));
+        ISOMsg respMsg = mux.request(isoMsg, 100);
+        if (respMsg == null) {
+            return "No response received from server.";
+        } else {
+            System.out.println(Arrays.toString(respMsg.pack()));
+            return respMsg.toString();
+        }
+
+
+    }
+
+
+    @GetMapping(value="/echo-v2", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String echoV2(@RequestParam String cardNumber,
+                         @RequestParam String processingCode
+
+
+
+    ) throws ISOException, NameRegistrar.NotFoundException {
+        mux = QMUX.getMUX("clientsimulator-mux");
+        //create an ISOMsg
+        byte b[] = {00, ((byte) 0xfb)};
+
+        ISOMsg isoMsg = new ISOMsg();
+        isoMsg.setMTI("0200");
+        isoMsg.set(2, cardNumber);
+        isoMsg.set(3, processingCode);
+        isoMsg.set(4, "100000");
+        isoMsg.set(7, new SimpleDateFormat("MMddHHmmss").format(new Date()));
+        isoMsg.set(11, "123");
+        isoMsg.set(12, new SimpleDateFormat("HHmmss").format(new Date()));
+        ISOMsg respMsg = mux.request(isoMsg, 100);
+        if (respMsg == null) {
+            return "No response received from server.";
+        } else {
+            System.out.println(Arrays.toString(respMsg.pack()));
+            return respMsg.toString();
+        }
 
 
     }
@@ -120,7 +153,7 @@ public class IsomsgRestController {
         while (true){
             // calculate the time
 
-            String uri = "http://localhost:8080/echo";
+            String uri = "http://localhost:8087/echo";
         RestTemplate restTemplate = new RestTemplate();
         System.out.println(restTemplate.getForObject(uri, String.class));
         System.out.println(count++);
