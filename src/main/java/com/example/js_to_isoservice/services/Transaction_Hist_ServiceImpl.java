@@ -22,22 +22,24 @@ public class Transaction_Hist_ServiceImpl implements Transaction_Hist_Service {
     @Override
     public Transaction_Hist saveIsomsg(Transaction_Hist transactionHist) {
         return transaction_hist_repository.save(transactionHist);
-
     }
 
     @Override
     public Transaction_Hist getTransactions(String c) {
-        return null;
+        List<Transaction_Hist> list = transaction_hist_repository.findByCardNumber(c);
+        return list.isEmpty() ? null : list.get(list.size() - 1);
     }
 
+    /** Renvoie la transaction la plus récente pour cette carte et cette date (null si aucune). */
     @Override
     public Transaction_Hist getHist(String c, String date) {
-        return transaction_hist_repository.findByCardNumberAndDate_transaction(c,date);
+        List<Transaction_Hist> list = transaction_hist_repository.findByCardNumberAndDateTransaction(c, date);
+        return list.isEmpty() ? null : list.get(0);
     }
 
     @Override
     public void deleteStr(String state) {
-        transaction_hist_repository.deleteString(state);
+        transaction_hist_repository.deleteByState(state);
     }
 
     @Override
